@@ -20,14 +20,15 @@ class WeatherService
      */
     public function getCurrentWeather()
     {
-        $latitude = 10.0494;
-        $longitude = 124.9698;
+        $latitude = 10.0522;
+        $longitude = 124.9699;
 
         $response = Http::get($this->baseUrl, [
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'hourly' => 'temperature_2m,rain',
-            'current_weather' => true,
+            'hourly' => 'temperature_2m,rain,cloud_cover,weather_code',
+            'current' => 'temperature_2m,rain,precipitation,cloud_cover,weather_code',
+            'past_days' => 7,
         ]);
 
         if ($response->successful()) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use App\Services\WeatherService;
 
 class SalesController extends Controller
 {
@@ -29,5 +30,32 @@ class SalesController extends Controller
         Sale::create($validated);
 
         return redirect()->route('dashboard')->with('success', 'Sale record added successfully.');
+    }
+
+    /**
+     * Display a listing of sales.
+     */
+    public function index()
+    {
+        $sales = Sale::orderBy('date', 'asc')->get();
+
+        $weatherService = new WeatherService();
+        $weatherForecast = $weatherService->get7DayForecast();
+
+        // Prepare data for chart
+        $chartLabels = $sales->pluck('date')->map(function ($date) {
+            return \Carbon\Carbon::parse($date)->format('M d');
+        });
+        $chartData = $sales->pluck('cups_sold');
+
+        // Paginate sales for table display
+        $paginatedSales = Sale::orderBy('date', 'desc')->paginate(15);
+
+        return view('sales.index', [
+            'sales' => $paginatedSales,
+            'weatherForecast' => $weatherForecast,
+            'chartLabels' => $chartLabels,
+            'chartData' => $chartData,
+        ]);
     }
 }
