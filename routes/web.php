@@ -21,3 +21,12 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+use App\Http\Controllers\SalesController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/sales/create', [SalesController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
+
+    Route::post('/forecast/generate', [\App\Http\Controllers\DashboardController::class, 'generateForecast'])->name('forecast.generate');
+});
+
