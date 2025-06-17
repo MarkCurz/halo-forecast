@@ -62,6 +62,7 @@
                                 <th class="px-4 py-2 border-b">Max Temp (°C)</th>
                                 <th class="px-4 py-2 border-b">Min Temp (°C)</th>
                                 <th class="px-4 py-2 border-b">Precipitation (mm)</th>
+                                <th class="px-4 py-2 border-b">Weather</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,6 +80,19 @@
                                     </td>
                                     <td class="px-4 py-2 border-b">
                                         {{ $weatherForecast && isset($weatherForecast['precipitation_sum'][$index]) ? $weatherForecast['precipitation_sum'][$index] : 'N/A' }}
+                                    </td>
+                                    <td class="px-4 py-2 border-b">
+                                        @php
+                                            $precip = $weatherForecast['precipitation_sum'][$index] ?? 0;
+                                            if ($precip == 0) {
+                                                $weatherDesc = '☀️';
+                                            } elseif ($precip > 0 && $precip < 5) {
+                                                $weatherDesc = '☁️';
+                                            } else {
+                                                $weatherDesc = '🌧️';
+                                            }
+                                        @endphp
+                                        {{ $weatherDesc }}
                                     </td>
                                 </tr>
                             @endforeach
