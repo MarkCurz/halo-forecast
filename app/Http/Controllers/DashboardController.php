@@ -31,7 +31,9 @@ class DashboardController extends Controller
         $weather = $this->weatherService->getCurrentWeather();
         $weatherForecast = $this->weatherService->get7DayForecast();
 
-        return view('dashboard', compact('todaySales', 'todayCups', 'forecast', 'weather', 'weatherForecast'));
+        $exactTotalSales = $this->forecastService->getExactTotalSales();
+
+        return view('dashboard', compact('todaySales', 'todayCups', 'forecast', 'weather', 'weatherForecast', 'exactTotalSales'));
     }
 
     public function generateForecast(Request $request)

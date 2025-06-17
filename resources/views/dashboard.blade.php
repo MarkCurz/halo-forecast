@@ -14,7 +14,7 @@
             @endif
 
             <!-- Today Summary Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h3 class="text-lg font-semibold text-gray-700">Today’s Cups Sold</h3>
                     <p class="text-3xl text-blue-600 mt-2 font-bold">{{ $todayCups }}</p>
@@ -22,6 +22,10 @@
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h3 class="text-lg font-semibold text-gray-700">Today’s Sales</h3>
                     <p class="text-3xl text-green-600 mt-2 font-bold">₱{{ number_format($todaySales, 2) }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-700">Total Sales</h3>
+                    <p class="text-3xl text-purple-600 mt-2 font-bold">₱{{ number_format($exactTotalSales, 2) }}</p>
                 </div>
                 @if($weather)
                 <div class="bg-white p-6 rounded-lg shadow">

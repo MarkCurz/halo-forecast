@@ -7,9 +7,18 @@ use App\Models\Forecast;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+use App\Services\WeatherService;
+
 class ForecastService
 {
-    const PRICE_PER_CUP = 35;
+    const PRICE_PER_CUP = 25;
+
+    protected $weatherService;
+
+    public function __construct(WeatherService $weatherService)
+    {
+        $this->weatherService = $weatherService;
+    }
 
     public function generateForecast()
     {
@@ -23,6 +32,9 @@ class ForecastService
         ->groupBy('day_of_week')
         ->get()
         ->keyBy('day_of_week');
+
+        // Get 7-day weather forecast
+        $weatherForecast = $this->weatherService->get7DayForecast();
 
         // Clear old forecasts
         Forecast::truncate();
@@ -38,14 +50,28 @@ class ForecastService
 
             if (isset($salesData[$mysqlDayOfWeek])) {
                 $avgCups = round($salesData[$mysqlDayOfWeek]->avg_cups_sold);
-                $avgSales = $avgCups * self::PRICE_PER_CUP;
+
+                // Adjust cups sold based on precipitation
+                $precipitation = 0;
+                if ($weatherForecast && isset($weatherForecast['precipitation_sum'][$i - 1])) {
+                    $precipitation = $weatherForecast['precipitation_sum'][$i - 1];
+                }
+
+                // Simple adjustment: reduce cups sold by 20% if precipitation > 5mm
+                if ($precipitation > 5) {
+                    $adjustedCups = round($avgCups * 0.8);
+                } else {
+                    $adjustedCups = $avgCups;
+                }
+
+                $avgSales = $adjustedCups * self::PRICE_PER_CUP;
 
                 $stddev = $salesData[$mysqlDayOfWeek]->stddev_cups_sold;
                 $confidence = ($stddev !== null && $stddev < 5) ? 'High' : 'Medium';
 
                 Forecast::create([
                     'forecast_date' => $forecastDate->toDateString(),
-                    'predicted_cups' => $avgCups,
+                    'predicted_cups' => $adjustedCups,
                     'predicted_sales' => $avgSales,
                     'confidence_level' => $confidence,
                 ]);
@@ -58,5 +84,11 @@ class ForecastService
                 ]);
             }
         }
+    }
+
+    public function getExactTotalSales()
+    {
+        $totalCups = Sale::sum('cups_sold');
+        return $totalCups * self::PRICE_PER_CUP;
     }
 }
